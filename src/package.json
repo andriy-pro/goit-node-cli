@@ -1,0 +1,31 @@
+{
+  "name": "goit-node-cli",
+  "version": "1.0.0",
+  "description": "CLI tool for managing a collection of contacts",
+  "keywords": [
+    "cli",
+    "contacts",
+    "nodejs",
+    "commander"
+  ],
+  "homepage": "https://github.com/andriy-pro/goit-node-cli#readme",
+  "bugs": {
+    "url": "https://github.com/andriy-pro/goit-node-cli/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andriy-pro/goit-node-cli.git"
+  },
+  "license": "GPL-3.0",
+  "author": "Andriy Nechyporenko",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
+    "uuid": "^11.1.0"
+  }
+}
