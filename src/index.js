@@ -3,6 +3,8 @@ import { listContacts, getContactById, removeContact, addContact } from './conta
 import { Command } from 'commander';
 // Імпортуємо функції валідації
 import { checkRequiredFields } from './utils/validation.js';
+// Імпортуємо утиліти для кольорового виводу
+import { log } from './utils/output.js';
 
 // Створюємо новий екземпляр програми Commander
 const program = new Command();
@@ -25,16 +27,16 @@ async function invokeAction({ action, id, name, email, phone }) {
         case 'list':
             // Отримуємо список всіх контактів та виводимо у вигляді таблиці
             const contacts = await listContacts();
-            console.table(contacts);
+            log.table(contacts, 'Список контактів');
             break;
 
         case 'get':
             // Шукаємо контакт за ID та виводимо результат
             const contact = await getContactById(id);
             if (contact) {
-                console.table([contact]); // Відображаємо знайдений контакт
+                log.table([contact], `Контакт з ID: ${id}`); // Відображаємо знайдений контакт
             } else {
-                console.log(`Контакт з ID ${id} не знайдено`);
+                log.warning(`Контакт з ID ${id} не знайдено`);
             }
             break;
 
@@ -42,29 +44,29 @@ async function invokeAction({ action, id, name, email, phone }) {
             // Перевіряємо наявність всіх обов'язкових полів
             const missingFields = checkRequiredFields(name, email, phone);
             if (missingFields.length > 0) {
-                console.error(`Відсутні обов'язкові поля: ${missingFields.join(', ')}`);
+                log.error(`Відсутні обов'язкові поля: ${missingFields.join(', ')}`);
                 return;
             }
             
             try {
                 // Додаємо новий контакт з переданими даними (з валідацією)
                 const newContact = await addContact(name, email, phone);
-                console.log('Контакт додано:');
-                console.table([newContact]); // Показуємо доданий контакт
+                log.success('Контакт успішно додано!');
+                log.table([newContact], 'Новий контакт'); // Показуємо доданий контакт
             } catch (error) {
-                console.error(`Помилка додавання контакту: ${error.message}`);
+                log.error(`Помилка додавання контакту: ${error.message}`);
             }
             break;
 
         case 'remove':
             // Видаляємо контакт за ID та показуємо оновлений список
             const updatedContacts = await removeContact(id);
-            console.log(`Контакт з ID ${id} видалено`);
-            console.table(updatedContacts); // Показуємо список після видалення
+            log.success(`Контакт з ID ${id} успішно видалено`);
+            log.table(updatedContacts, 'Оновлений список контактів'); // Показуємо список після видалення
             break;
 
         default:
-            console.warn('Невідома дія'); // Повідомлення про некоректну команду
+            log.error('Невідома дія'); // Повідомлення про некоректну команду
     }
 }
 
@@ -84,4 +86,7 @@ program.parse(process.argv);
 const argv = program.opts();
 
 // Викликаємо головну функцію з переданими аргументами
-invokeAction(argv);
+invokeAction(argv).catch(error => {
+    log.error(`Сталася помилка: ${error.message}`);
+    process.exit(1);
+});
