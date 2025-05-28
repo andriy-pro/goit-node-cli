@@ -7,6 +7,8 @@ import { checkRequiredFields } from './utils/validation.js';
 import { log } from './utils/output.js';
 // Імпортуємо централізований обробник помилок
 import { handleError, withErrorHandler } from './utils/errorHandler.js';
+// Імпортуємо chalk для кольорового виводу
+import chalk from 'chalk';
 
 // Створюємо новий екземпляр програми Commander
 const program = new Command();
@@ -43,8 +45,7 @@ async function invokeAction({ action, id, name, email, phone }) {
                 if (contact) {
                     log.table([contact], `Контакт з ID: ${id}`); // Відображаємо знайдений контакт
                 } else {
-                    log.warning(`Контакт з ID ${id} не знайдено`);
-                }
+                    log.warning(`Контакт з ID ${chalk.bold(${id})} не знайдено!`);              }
             } catch (error) {
                 handleError(error, 'Помилка пошуку контакту');
             }
@@ -54,7 +55,7 @@ async function invokeAction({ action, id, name, email, phone }) {
             // Перевіряємо наявність всіх обов'язкових полів
             const missingFields = checkRequiredFields(name, email, phone);
             if (missingFields.length > 0) {
-                log.error(`Відсутні обов'язкові поля: ${missingFields.join(', ')}`);
+                log.error(`Відсутні обов'язкові поля: ${chalk.bold(missingFields.join(', '))}`);
                 return;
             }
             
@@ -72,7 +73,7 @@ async function invokeAction({ action, id, name, email, phone }) {
             try {
                 // Видаляємо контакт за ID та показуємо оновлений список
                 const updatedContacts = await removeContact(id);
-                log.success(`Контакт з ID ${id} успішно видалено`);
+                log.success(`Контакт з ID ${chalk.bold(${id})} успішно видалено!`);
                 log.table(updatedContacts, 'Оновлений список контактів'); // Показуємо список після видалення
             } catch (error) {
                 handleError(error, 'Помилка видалення контакту');
@@ -80,7 +81,7 @@ async function invokeAction({ action, id, name, email, phone }) {
             break;
 
         default:
-            log.error('Невідома дія. Доступні дії: list, get, add, remove'); // Повідомлення про некоректну команду
+            log.error(`Невідома дія. Доступні дії: ${chalk.bold('list, get, add, remove')}`); // Повідомлення про некоректну команду
             process.exit(1); // Завершуємо з кодом помилки
     }
 }

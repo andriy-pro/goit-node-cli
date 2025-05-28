@@ -7,6 +7,7 @@
  */
 
 import { log } from './output.js';
+import chalk from 'chalk';
 
 /**
  * Обробляє помилки та виводить зрозумілі повідомлення користувачу
@@ -24,7 +25,7 @@ export const handleError = (error, context = '') => {
     } else if (error.code === 'ENOSPC') {
         log.error(`${prefix}Недостатньо місця на диску`);
     } else if (error instanceof SyntaxError) {
-        log.error(`${prefix}Файл contacts.json пошкоджено або містить некоректний JSON`);
+        log.error(`${prefix}Файл ${chalk.bold('contacts.json')} пошкоджено або містить некоректний JSON`);
     } else if (error.message.includes('валідації')) {
         log.error(`${prefix}${error.message}`);
     } else if (error.message.includes("Відсутні обов'язкові поля")) {
@@ -49,7 +50,7 @@ export const handleWarning = (error, context = '') => {
     if (error.code === 'ENOENT') {
         log.warning(`${prefix}Файл не існує, буде створено новий`);
     } else {
-        log.warning(`${prefix}${error.message}`);
+        log.warning(`${prefix}${chalk.bold(error.message)}`);
     }
     
     return false;
