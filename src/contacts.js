@@ -2,6 +2,7 @@ import { readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
+import { validateContact } from './utils/validation.js';
 
 // Отримуємо шлях до поточного файлу та директорії в ES-модулях
 const __filename = fileURLToPath(import.meta.url);
@@ -50,18 +51,28 @@ async function removeContact(contactId) {
 }
 
 /**
- * Додавання нового контакту
+ * Додавання нового контакту з валідацією даних
  * @param {string} name - Ім'я контакту
  * @param {string} email - Email контакту
  * @param {string} phone - Телефон контакту
  * @returns {Promise<Object>} Об'єкт нового контакту
+ * @throws {Error} Викидає помилку, якщо дані не пройшли валідацію
  */
 async function addContact(name, email, phone) {
-    const contacts = await listContacts(); // Отримуємо список контактів
-    const newContact = { id: uuidv4(), name, email, phone }; // Використовуємо UUID замість Date.now()
-    contacts.push(newContact); // Додаємо новий контакт до списку
-    await writeFile(contactsPath, JSON.stringify(contacts, null, 2)); // Записуємо оновлений список у файл
-    return newContact; // Повертаємо новий контакт
+    // Створюємо об'єкт контакту для валідації
+    const contactData = { name, email, phone };
+    
+    // Перевіряємо валідність даних
+    const validationErrors = validateContact(contactData);
+    if (validationErrors) {
+        throw new Error(`Помилки валідації: ${validationErrors.join(', ')}`);
+    }
+    
+    const contacts = await listContacts();
+    const newContact = { id: uuidv4(), name, email, phone };
+    contacts.push(newContact);
+    await writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+    return newContact;
 }
 
 // Експортуємо функції для використання в інших частинах програми

@@ -1,6 +1,8 @@
 import { listContacts, getContactById, removeContact, addContact } from './contacts.js';
 // Імпортуємо Commander.js для парсингу аргументів командного рядка
 import { Command } from 'commander';
+// Імпортуємо функції валідації
+import { checkRequiredFields } from './utils/validation.js';
 
 // Створюємо новий екземпляр програми Commander
 const program = new Command();
@@ -37,10 +39,21 @@ async function invokeAction({ action, id, name, email, phone }) {
             break;
 
         case 'add':
-            // Додаємо новий контакт з переданими даними
-            const newContact = await addContact(name, email, phone);
-            console.log('Контакт додано:');
-            console.table([newContact]); // Показуємо доданий контакт
+            // Перевіряємо наявність всіх обов'язкових полів
+            const missingFields = checkRequiredFields(name, email, phone);
+            if (missingFields.length > 0) {
+                console.error(`Відсутні обов'язкові поля: ${missingFields.join(', ')}`);
+                return;
+            }
+            
+            try {
+                // Додаємо новий контакт з переданими даними (з валідацією)
+                const newContact = await addContact(name, email, phone);
+                console.log('Контакт додано:');
+                console.table([newContact]); // Показуємо доданий контакт
+            } catch (error) {
+                console.error(`Помилка додавання контакту: ${error.message}`);
+            }
             break;
 
         case 'remove':
