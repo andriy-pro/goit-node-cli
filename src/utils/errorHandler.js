@@ -1,9 +1,11 @@
 /**
- * Централізований обробник помилок для CLI застосунку
+ * Модуль централізованої обробки помилок для CLI застосунку
  * 
- * Цей модуль обробляє різні типи помилок та виводить зрозумілі повідомлення
- * користувачу, після чого коректно завершує програму з відповідним кодом виходу.
+ * Надає функції для обробки критичних помилок, попереджень та обгортки асинхронних функцій.
+ * 
+ * @module utils/errorHandler
  */
+
 import { log } from './output.js';
 
 /**
@@ -25,7 +27,7 @@ export const handleError = (error, context = '') => {
         log.error(`${prefix}Файл contacts.json пошкоджено або містить некоректний JSON`);
     } else if (error.message.includes('валідації')) {
         log.error(`${prefix}${error.message}`);
-    } else if (error.message.includes('Відсутні обов\'язкові поля')) {
+    } else if (error.message.includes("Відсутні обов'язкові поля")) {
         log.error(`${prefix}${error.message}`);
     } else {
         log.error(`${prefix}${error.message}`);
