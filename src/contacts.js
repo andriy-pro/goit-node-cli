@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import { validateContact } from './utils/validation.js';
+import { handleWarning } from './utils/errorHandler.js';
 
 // Отримуємо шлях до поточного файлу та директорії в ES-модулях
 const __filename = fileURLToPath(import.meta.url);
@@ -22,9 +23,13 @@ async function listContacts() {
         return JSON.parse(data);
     } catch (error) {
         if (error.code === 'ENOENT') {
-            return []; // Файл не існує
+            return []; // Файл не існує - повертаємо порожній масив
+        } else if (error instanceof SyntaxError) {
+            throw new Error('Файл contacts.json містить некоректний JSON');
+        } else if (error.code === 'EACCES') {
+            throw new Error('Недостатньо прав для читання файлу contacts.json');
         }
-        throw error; // Інші помилки
+        throw error; // Інші помилки передаємо далі
     }
 }
 
@@ -42,12 +47,29 @@ async function getContactById(contactId) {
  * Видалення контакту за ID
  * @param {string} contactId - ID контакту для видалення
  * @returns {Promise<Array<Object>>} Масив контактів після видалення
+ * @throws {Error} Викидає помилку, якщо контакт не знайдено або виникли проблеми із записом
  */
 async function removeContact(contactId) {
-    const contacts = await listContacts(); // Отримуємо список контактів
-    const newContacts = contacts.filter(contact => contact.id !== contactId); // Фільтруємо контакти, виключаючи той, що має заданий ID
-    await writeFile(contactsPath, JSON.stringify(newContacts, null, 2)); // Записуємо оновлений список у файл
-    return newContacts; // Повертаємо оновлений список
+    const contacts = await listContacts();
+    const initialLength = contacts.length;
+    const newContacts = contacts.filter(contact => contact.id !== contactId);
+    
+    // Перевіряємо, чи був контакт знайдений та видалений
+    if (newContacts.length === initialLength) {
+        throw new Error(`Контакт з ID ${contactId} не знайдено`);
+    }
+    
+    try {
+        await writeFile(contactsPath, JSON.stringify(newContacts, null, 2));
+        return newContacts;
+    } catch (error) {
+        if (error.code === 'EACCES') {
+            throw new Error('Недостатньо прав для запису у файл contacts.json');
+        } else if (error.code === 'ENOSPC') {
+            throw new Error('Недостатньо місця на диску для збереження файлу');
+        }
+        throw error;
+    }
 }
 
 /**
@@ -71,8 +93,18 @@ async function addContact(name, email, phone) {
     const contacts = await listContacts();
     const newContact = { id: uuidv4(), name, email, phone };
     contacts.push(newContact);
-    await writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-    return newContact;
+    
+    try {
+        await writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+        return newContact;
+    } catch (error) {
+        if (error.code === 'EACCES') {
+            throw new Error('Недостатньо прав для запису у файл contacts.json');
+        } else if (error.code === 'ENOSPC') {
+            throw new Error('Недостатньо місця на диску для збереження контакту');
+        }
+        throw error;
+    }
 }
 
 // Експортуємо функції для використання в інших частинах програми

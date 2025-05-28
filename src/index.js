@@ -5,6 +5,8 @@ import { Command } from 'commander';
 import { checkRequiredFields } from './utils/validation.js';
 // Імпортуємо утиліти для кольорового виводу
 import { log } from './utils/output.js';
+// Імпортуємо централізований обробник помилок
+import { handleError, withErrorHandler } from './utils/errorHandler.js';
 
 // Створюємо новий екземпляр програми Commander
 const program = new Command();
@@ -25,18 +27,26 @@ const program = new Command();
 async function invokeAction({ action, id, name, email, phone }) {
     switch (action) {
         case 'list':
-            // Отримуємо список всіх контактів та виводимо у вигляді таблиці
-            const contacts = await listContacts();
-            log.table(contacts, 'Список контактів');
+            try {
+                // Отримуємо список всіх контактів та виводимо у вигляді таблиці
+                const contacts = await listContacts();
+                log.table(contacts, 'Список контактів');
+            } catch (error) {
+                handleError(error, 'Помилка отримання списку контактів');
+            }
             break;
 
         case 'get':
-            // Шукаємо контакт за ID та виводимо результат
-            const contact = await getContactById(id);
-            if (contact) {
-                log.table([contact], `Контакт з ID: ${id}`); // Відображаємо знайдений контакт
-            } else {
-                log.warning(`Контакт з ID ${id} не знайдено`);
+            try {
+                // Шукаємо контакт за ID та виводимо результат
+                const contact = await getContactById(id);
+                if (contact) {
+                    log.table([contact], `Контакт з ID: ${id}`); // Відображаємо знайдений контакт
+                } else {
+                    log.warning(`Контакт з ID ${id} не знайдено`);
+                }
+            } catch (error) {
+                handleError(error, 'Помилка пошуку контакту');
             }
             break;
 
@@ -59,14 +69,19 @@ async function invokeAction({ action, id, name, email, phone }) {
             break;
 
         case 'remove':
-            // Видаляємо контакт за ID та показуємо оновлений список
-            const updatedContacts = await removeContact(id);
-            log.success(`Контакт з ID ${id} успішно видалено`);
-            log.table(updatedContacts, 'Оновлений список контактів'); // Показуємо список після видалення
+            try {
+                // Видаляємо контакт за ID та показуємо оновлений список
+                const updatedContacts = await removeContact(id);
+                log.success(`Контакт з ID ${id} успішно видалено`);
+                log.table(updatedContacts, 'Оновлений список контактів'); // Показуємо список після видалення
+            } catch (error) {
+                handleError(error, 'Помилка видалення контакту');
+            }
             break;
 
         default:
-            log.error('Невідома дія'); // Повідомлення про некоректну команду
+            log.error('Невідома дія. Доступні дії: list, get, add, remove'); // Повідомлення про некоректну команду
+            process.exit(1); // Завершуємо з кодом помилки
     }
 }
 
@@ -85,8 +100,7 @@ program.parse(process.argv);
 // Отримуємо об'єкт з усіма переданими опціями
 const argv = program.opts();
 
-// Викликаємо головну функцію з переданими аргументами
+// Викликаємо головну функцію з централізованою обробкою помилок
 invokeAction(argv).catch(error => {
-    log.error(`Сталася помилка: ${error.message}`);
-    process.exit(1);
+    handleError(error, 'Критична помилка застосунку');
 });
