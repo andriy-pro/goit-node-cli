@@ -45,7 +45,7 @@ async function invokeAction({ action, id, name, email, phone }) {
                 if (contact) {
                     log.table([contact], `Контакт з ID: ${id}`); // Відображаємо знайдений контакт
                 } else {
-                    log.warning(`Контакт з ID ${chalk.bold(${id})} не знайдено!`);              }
+                    log.warning(`Контакт з ID ${chalk.bold(id)} не знайдено!`);              }
             } catch (error) {
                 handleError(error, 'Помилка пошуку контакту');
             }
@@ -73,7 +73,7 @@ async function invokeAction({ action, id, name, email, phone }) {
             try {
                 // Видаляємо контакт за ID та показуємо оновлений список
                 const updatedContacts = await removeContact(id);
-                log.success(`Контакт з ID ${chalk.bold(${id})} успішно видалено!`);
+                log.success(`Контакт з ID ${chalk.bold(id)} успішно видалено!`);
                 log.table(updatedContacts, 'Оновлений список контактів'); // Показуємо список після видалення
             } catch (error) {
                 handleError(error, 'Помилка видалення контакту');
