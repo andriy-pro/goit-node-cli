@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import { validateContact } from './utils/validation.js';
 import { handleWarning } from './utils/errorHandler.js';
+import chalk from 'chalk';
 
 // Отримуємо шлях до поточного файлу та директорії в ES-модулях
 const __filename = fileURLToPath(import.meta.url);
@@ -56,7 +57,7 @@ async function removeContact(contactId) {
     
     // Перевіряємо, чи був контакт знайдений та видалений
     if (newContacts.length === initialLength) {
-        throw new Error(`Контакт з ID ${contactId} не знайдено`);
+        throw new Error(`Контакт з ID ${chalk.bold(contactId)} не знайдено`);
     }
     
     try {
