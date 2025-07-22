@@ -84,13 +84,13 @@ program.parse(process.argv);
 node index.js -a list
 
 # Знайти контакт по ID
-node index.js -a get -i 05olLMgyVQdWRwgKfg5J6
+node index.js -a get -i 05d36186-cb15-441f-8c07-b666d41b0c98
 
 # Додати контакт
-node index.js -a add -n "John Doe" -e johndoe@example.com -p "(123) 456-7890"
+node index.js -a add -n "John Doe" -e johndoe@example.com -p 322-22-22
 
 # Видалити контакт
-node index.js -a remove -i qdggE76Jtbfd9eWJHrssH
+node index.js -a remove -i 5444f838-641f-4fba-840a-7d0594d25b32
 ```
 
 ---
@@ -129,3 +129,11 @@ node index.js -a remove -i qdggE76Jtbfd9eWJHrssH
     -   Модульна структура: src/utils/, src/schemas/ для організації коду.
     -   Всі залежності та Node.js версія чітко визначені у `package.json`.
     -   Production-ready підхід: використання індустріальних стандартів (Joi, централізований error handler, async/await).
+
+---
+
+## Тести
+
+Нижче наведено приклад проходження простих тестів для цього CLI-додатку:
+
+![goit-node-cli тести](goit-node-cli_test_2025-07-22.png)
