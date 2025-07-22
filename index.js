@@ -2,11 +2,11 @@ import { listContacts, getContactById, removeContact, addContact } from './conta
 // Імпортуємо Commander.js для парсингу аргументів командного рядка
 import { Command } from 'commander';
 // Імпортуємо функції валідації
-import { checkRequiredFields } from './utils/validation.js';
+import { checkRequiredFields } from './validation.js';
 // Імпортуємо утиліти для кольорового виводу
-import { log } from './utils/output.js';
+import { log } from './output.js';
 // Імпортуємо централізований обробник помилок
-import { handleError, withErrorHandler } from './utils/errorHandler.js';
+import { handleError, withErrorHandler } from './errorHandler.js';
 // Імпортуємо chalk для кольорового виводу
 import chalk from 'chalk';
 

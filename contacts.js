@@ -2,8 +2,8 @@ import { readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
-import { validateContact } from './utils/validation.js';
-import { handleWarning } from './utils/errorHandler.js';
+import { validateContact } from './validation.js';
+import { handleWarning } from './errorHandler.js';
 import chalk from 'chalk';
 
 // Отримуємо шлях до поточного файлу та директорії в ES-модулях
